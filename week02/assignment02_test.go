@@ -71,3 +71,39 @@ func TestMap(t *testing.T) {
 		}
 	}
 }
+
+func TestSlicePointer(t *testing.T) {
+	orig := []string{"A", "B", "C"}
+	lor := len(orig)
+
+	modif := func(dat []string) {
+		dat[0] = "X"
+		dat = append(dat, "D")
+	}
+
+	modif(orig)
+	// Length still the same
+	if lor != len(orig) {
+		t.Errorf("Expected %v, got %v", lor, len(orig))
+	}
+
+	if orig[0] != "X" {
+		t.Errorf("Expected %v, got %v", "X", orig[0])
+	}
+
+	modip := func(dat *[]string) {
+		(*dat)[0] = "W"
+		*dat = append(*dat, "D")
+	}
+
+	modip(&orig)
+	// Length not the same
+	if lor == len(orig) {
+		t.Errorf("Expected length to be %[1]v, got %[1]v", len(orig))
+	}
+
+	if orig[0] != "W" {
+		t.Errorf("Expected %v, got %v", "W", orig[0])
+	}
+
+}
