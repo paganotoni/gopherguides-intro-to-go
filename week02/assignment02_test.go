@@ -4,12 +4,16 @@ import "testing"
 
 func TestArray(t *testing.T) {
 	exp := [4]string{"max", "tuto", "bombom", "tony"}
-	act := make([]string, 4)
+	act := make([]string, 0)
 
 	// iterating through the array and appending
 	// to act
 	for i := range exp {
-		act[i] = exp[i]
+		new := make([]string, len(act)+1)
+		copy(new, act)
+
+		act = new
+		act[len(act)-1] = exp[i]
 	}
 
 	for i, v := range act {
