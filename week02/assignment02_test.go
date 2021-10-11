@@ -1,19 +1,17 @@
 package week02
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestArray(t *testing.T) {
 	exp := [4]string{"max", "tuto", "bombom", "tony"}
-	act := make([]string, 0)
+	act := make([]string, len(exp))
 
 	// iterating through the array and appending
 	// to act
 	for i := range exp {
-		new := make([]string, len(act)+1)
-		copy(new, act)
-
-		act = new
-		act[len(act)-1] = exp[i]
+		act[i] = exp[i]
 	}
 
 	for i, v := range act {
@@ -70,40 +68,4 @@ func TestMap(t *testing.T) {
 			t.Errorf("Expected %v, got %v", exp[k], v)
 		}
 	}
-}
-
-func TestSlicePointer(t *testing.T) {
-	orig := []string{"A", "B", "C"}
-	lor := len(orig)
-
-	modif := func(dat []string) {
-		dat[0] = "X"
-		dat = append(dat, "D")
-	}
-
-	modif(orig)
-	// Length still the same
-	if lor != len(orig) {
-		t.Errorf("Expected %v, got %v", lor, len(orig))
-	}
-
-	if orig[0] != "X" {
-		t.Errorf("Expected %v, got %v", "X", orig[0])
-	}
-
-	modip := func(dat *[]string) {
-		(*dat)[0] = "W"
-		*dat = append(*dat, "D")
-	}
-
-	modip(&orig)
-	// Length not the same
-	if lor == len(orig) {
-		t.Errorf("Expected length to be %[1]v, got %[1]v", len(orig))
-	}
-
-	if orig[0] != "W" {
-		t.Errorf("Expected %v, got %v", "W", orig[0])
-	}
-
 }
