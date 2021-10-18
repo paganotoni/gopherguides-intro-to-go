@@ -54,6 +54,10 @@ func (mo Movie) Plays() int {
 	return mo.plays
 }
 
+func (mo Movie) String() string {
+	return fmt.Sprintf("%s (%dm) %.1f%%", mo.Name, mo.Length, mo.Rating())
+}
+
 func (mo Movie) Rating() float64 {
 	if len(mo.ratings) == 0 {
 		return 0.0
