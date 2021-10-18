@@ -4,30 +4,22 @@ import (
 	"fmt"
 )
 
-var (
-	ErrRatingNoPlays       = fmt.Errorf("can't review a movie without watching it first")
-	ErrInvalidViewersValue = fmt.Errorf("invalid number of viewers, must be greather than 0")
-	ErrTeatherPlayNoMovies = fmt.Errorf("no movies to play")
-)
+type CritiqueFn func(Movie) (float32, error)
 
-type (
-	CritiqueFn func(Movie) (float32, error)
+type Movie struct {
+	Length int
+	Name   string
 
-	Movie struct {
-		Length int
-		Name   string
+	plays   int
+	viewers int
+	ratings []float32
+}
 
-		plays   int
-		viewers int
-		ratings []float32
-	}
-
-	Theatre struct{}
-)
+type Theatre struct{}
 
 func (mo *Movie) Rate(rate float32) error {
 	if mo.plays == 0 {
-		return ErrRatingNoPlays
+		return fmt.Errorf("can't review a movie without watching it first")
 	}
 
 	mo.ratings = append(mo.ratings, rate)
@@ -37,7 +29,7 @@ func (mo *Movie) Rate(rate float32) error {
 
 func (mo *Movie) Play(viewers int) error {
 	if viewers <= 0 {
-		return ErrInvalidViewersValue
+		return fmt.Errorf("invalid number of viewers, must be greather than 0")
 	}
 
 	mo.plays++
@@ -73,7 +65,7 @@ func (mo Movie) Rating() float64 {
 
 func (mo *Theatre) Play(viewers int, movies ...*Movie) error {
 	if len(movies) == 0 {
-		return ErrTeatherPlayNoMovies
+		return fmt.Errorf("no movies to play")
 	}
 
 	for _, mo := range movies {
