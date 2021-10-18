@@ -89,17 +89,17 @@ func (mo *Theatre) Critique(movies []*Movie, critique CritiqueFn) error {
 	for _, mo := range movies {
 		err := mo.Play(1)
 		if err != nil {
-			return err
+			return fmt.Errorf("error playing on critique: %w", err)
 		}
 
 		rating, err := critique(*mo)
 		if err != nil {
-			return err
+			return fmt.Errorf("error running critique: %w", err)
 		}
 
 		err = mo.Rate(rating)
 		if err != nil {
-			return err
+			return fmt.Errorf("error rating on critique: %w", err)
 		}
 	}
 
