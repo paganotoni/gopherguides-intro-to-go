@@ -3,6 +3,7 @@ package week03
 import (
 	"errors"
 	"fmt"
+	"gopherguides-intro-to-go/internal/verify"
 	"testing"
 )
 
@@ -16,22 +17,15 @@ func TestMovieRate(t *testing.T) {
 		err := movie.Rate(0.5)
 
 		expErr := errors.New("can't review a movie without watching it first")
-		if err.Error() != expErr.Error() {
-			t.Errorf("expected error to be %v got %v", "", err)
-		}
+		verify.Equals(t, expErr, err)
 	})
 
 	t.Run("NoTrackRatings", func(t *testing.T) {
 		movie.plays = 1
 		err := movie.Rate(0.5)
 
-		if err != nil {
-			t.Errorf("expected error to be nil got %v", err)
-		}
-
-		if len(movie.ratings) != 1 {
-			t.Errorf("expected length of ratings to be 1 got %v", len(movie.ratings))
-		}
+		verify.Equalsf(t, err, nil, "expected error to be %v, got %v")
+		verify.Equalsf(t, 1, len(movie.ratings), "expected length of ratings to be %v got %v")
 	})
 }
 
@@ -43,26 +37,16 @@ func TestMoviePlay(t *testing.T) {
 		movie.plays = 0
 
 		err := movie.Play(100)
-		if err != nil {
-			t.Errorf("expected error to be nil got %v", err)
-		}
-
-		if movie.plays != 1 {
-			t.Errorf("expected plays to be 1 got %v", movie.plays)
-		}
-
-		if movie.viewers != 100 {
-			t.Errorf("expected viewers to be 100 got %v", movie.viewers)
-		}
+		verify.Equalsf(t, err, nil, "expected error to be %v, got %v")
+		verify.Equalsf(t, 1, movie.plays, "expected movieplays to be %v got %v")
+		verify.Equalsf(t, 100, movie.viewers, "expected movie viewers to be %v got %v")
 	})
 
 	t.Run("PlayNegative", func(t *testing.T) {
 		movie.plays = 1
 		err := movie.Play(-10)
 		expErr := fmt.Errorf("invalid number of viewers, must be greather than 0")
-		if err.Error() != expErr.Error() {
-			t.Errorf("expected error to be %v got %v", expErr, err)
-		}
+		verify.Equalsf(t, err, expErr, "expected error to be %v, got %v")
 	})
 }
 
@@ -85,9 +69,7 @@ func TestMovieRating(t *testing.T) {
 			movie.ratings = tcase.values
 
 			rating := movie.Rating()
-			if rating != tcase.rating {
-				t.Errorf("expected rating to be %v got %v", tcase.rating, rating)
-			}
+			verify.Equalsf(t, tcase.rating, rating, "expected rating to be %v got %v")
 		})
 
 	}
@@ -96,27 +78,19 @@ func TestMovieRating(t *testing.T) {
 // ✅ Define a method on the value receiver for Movie named Plays. Plays takes no arguments and returns the number (int) of times the movie has been played.
 func TestMoviePlays(t *testing.T) {
 	mo := Movie{}
-	if mo.Plays() != 0 {
-		t.Errorf("expected plays to be 0 got %v", mo.Plays())
-	}
+	verify.Equalsf(t, 0, mo.Plays(), "expected plays to be %v got %v")
 
 	mo.plays = 100
-	if mo.Plays() != 100 {
-		t.Errorf("expected plays to be 100 got %v", mo.Plays())
-	}
+	verify.Equalsf(t, 100, mo.Plays(), "expected plays to be %v got %v")
 }
 
 // ✅ Define a method on the value receiver for Movie named Viewers. Viewers takes no arguments and returns the number (int) of people who have viewed the movie.
 func TestMovieViewers(t *testing.T) {
 	mo := Movie{}
-	if mo.Viewers() != 0 {
-		t.Errorf("expected viewers to be 0 got %v", mo.Viewers())
-	}
+	verify.Equalsf(t, 0, mo.Viewers(), "expected viewers to be %v got %v")
 
 	mo.viewers = 100
-	if mo.Viewers() != 100 {
-		t.Errorf("expected viewers to be 100 got %v", mo.Viewers())
-	}
+	verify.Equalsf(t, 100, mo.Viewers(), "expected viewers to be %v got %v")
 }
 
 // ✅ Define a method on the value receiver for Movie named String. String should return a string that that includes the name, length, and rating of the film. Ex. Wizard of Oz (102m) 99.0%
@@ -133,9 +107,7 @@ func TestMovieString(t *testing.T) {
 
 	for _, tcase := range tcases {
 		t.Run(tcase.name, func(t *testing.T) {
-			if tcase.movie.String() != tcase.str {
-				t.Errorf("expected string to be %v got %v", tcase.str, tcase.movie.String())
-			}
+			verify.Equalsf(t, tcase.str, tcase.movie.String(), "expected string to be %v got %v")
 		})
 	}
 }
@@ -161,18 +133,14 @@ func TestTeatherPlay(t *testing.T) {
 	for _, tcase := range tcases {
 		t.Run(tcase.name, func(t *testing.T) {
 			err := theatre.Play(tcase.viewers, tcase.movies...)
-			if tcase.expectedError != nil && err.Error() != tcase.expectedError.Error() {
-				t.Errorf("expected error to be %v got %v", tcase.expectedError, err)
-			}
+			verify.Equalsf(t, tcase.expectedError, err, "expected error to be %v got %v")
 
 			for _, mo := range tcase.movies {
 				if mo.plays < 1 {
 					t.Errorf("expected plays to be greater than 0 got %v", mo.plays)
 				}
 
-				if mo.viewers != tcase.viewers {
-					t.Errorf("expected viewers to be %v got %v", tcase.viewers, mo.viewers)
-				}
+				verify.Equalsf(t, tcase.viewers, mo.viewers, "expected viewers to be %v got %v")
 			}
 		})
 	}
@@ -200,26 +168,12 @@ func TestTeatherCritique(t *testing.T) {
 
 	theatre := &Theatre{}
 	err := theatre.Critique(movies, lazyCritique)
-
-	if err != nil {
-		t.Errorf("expected error to be nil got %v", err)
-	}
+	verify.Equalsf(t, nil, err, "expected err to be %v got %v")
 
 	for _, mo := range movies {
-		if mo.plays != 1 {
-			t.Errorf("expected plays to be 1 got %v", mo.plays)
-		}
-
-		if mo.viewers != 1 {
-			t.Errorf("expected viewers to be 1 got %v", mo.viewers)
-		}
-
-		if len(mo.ratings) != 1 {
-			t.Errorf("expected length of ratings to be 1 got %v", len(mo.ratings))
-		}
-
-		if mo.ratings[0] != 5.0 {
-			t.Errorf("expected rating to be 5.0 got %v", mo.ratings[0])
-		}
+		verify.Equalsf(t, 1, mo.plays, "expected plays to be %v got %v")
+		verify.Equalsf(t, 1, mo.viewers, "expected viewers to be %v got %v")
+		verify.Equalsf(t, 1, len(mo.ratings), "expected to have %v rating got %v")
+		verify.Equalsf(t, 0.5, mo.ratings[0], "expected first rating to be %v got %v")
 	}
 }
