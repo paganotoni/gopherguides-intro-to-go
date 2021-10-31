@@ -13,8 +13,8 @@ func TestStoreDb(t *testing.T) {
 		store Store
 		want  data
 	}{
-		{"empty", Store{}, data{}},
-		{"empty", Store{data: data{"cars": Models{{"A": "B"}}}}, data{"cars": Models{{"A": "B"}}}},
+		{name: "empty", store: Store{}, want: data{}},
+		{name: "empty", store: Store{data: data{"cars": Models{{"A": "B"}}}}, want: data{"cars": Models{{"A": "B"}}}},
 	}
 
 	for _, tt := range tcases {
@@ -37,8 +37,8 @@ func TestStoreAll(t *testing.T) {
 		models Models
 		err    error
 	}{
-		{"empty", Store{}, "cars", nil, &ErrTableNotFound{table: "cars"}},
-		{"withdata", Store{data: data{"cars": Models{{"A": "B"}}}}, "cars", Models{{"A": "B"}}, nil},
+		{name: "empty", store: Store{}, table: "cars", models: nil, err: &ErrTableNotFound{table: "cars"}},
+		{name: "with data", store: Store{data: data{"cars": Models{{"A": "B"}}}}, table: "cars", models: Models{{"A": "B"}}, err: nil},
 	}
 
 	for _, tt := range tcases {
@@ -66,9 +66,9 @@ func TestStoreLen(t *testing.T) {
 		count int
 		err   error
 	}{
-		{"empty", Store{}, "cars", 0, &ErrTableNotFound{table: "cars"}},
-		{"withdata", Store{data: data{"cars": Models{{"A": "B"}}}}, "cars", 1, nil},
-		{"withdata-multiple-models", Store{data: data{"cars": Models{{"A": "B"}}, "books": Models{{"C": "D"}}}}, "cars", 1, nil},
+		{name: "empty", store: Store{}, table: "cars", count: 0, err: &ErrTableNotFound{table: "cars"}},
+		{name: "with data", store: Store{data: data{"cars": Models{{"A": "B"}}}}, table: "cars", count: 1, err: nil},
+		{name: "with data multiple models", store: Store{data: data{"cars": Models{{"A": "B"}}, "books": Models{{"C": "D"}}}}, table: "cars", count: 1, err: nil},
 	}
 
 	for _, tt := range tcases {
@@ -124,24 +124,24 @@ func TestStoreSelect(t *testing.T) {
 		clauses Clauses
 		store   Store
 	}{
-		{"empty", &ErrTableNotFound{table: "cars"}, 0, Clauses{}, Store{}},
+		{name: "empty", err: &ErrTableNotFound{table: "cars"}, len: 0, clauses: Clauses{}, store: Store{}},
 		{
-			"no-rows",
-			&errNoRows{table: "cars", clauses: Clauses{"A": "C"}},
-			0,
-			Clauses{"A": "C"},
-			Store{
+			name:    "no rows",
+			err:     &errNoRows{table: "cars", clauses: Clauses{"A": "C"}},
+			len:     0,
+			clauses: Clauses{"A": "C"},
+			store: Store{
 				data{
 					"cars": Models{{"A": "B"}},
 				},
 			},
 		},
 		{
-			"no-clauses",
-			nil,
-			1,
-			Clauses{},
-			Store{
+			name:    "no clauses",
+			err:     nil,
+			len:     1,
+			clauses: Clauses{},
+			store: Store{
 				data{
 					"cars": Models{{"A": "B"}},
 				},
@@ -149,11 +149,11 @@ func TestStoreSelect(t *testing.T) {
 		},
 
 		{
-			"matching",
-			nil,
-			1,
-			Clauses{"A": "B"},
-			Store{
+			name:    "matching",
+			err:     nil,
+			len:     1,
+			clauses: Clauses{"A": "B"},
+			store: Store{
 				data{
 					"cars": Models{{"A": "B"}},
 				},

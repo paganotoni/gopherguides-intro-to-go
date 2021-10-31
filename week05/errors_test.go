@@ -13,8 +13,8 @@ func TestErrTableNotFoundError(t *testing.T) {
 		want  string
 		table string
 	}{
-		{"empty", "table not found ", ""},
-		{"provided", "table not found cars", "cars"},
+		{name: "empty", want: "table not found ", table: ""},
+		{name: "provided", want: "table not found cars", table: "cars"},
 	}
 
 	for _, tc := range tcases {
@@ -39,8 +39,8 @@ func TestErrTableNotFoundTableNotFound(t *testing.T) {
 		want  string
 		table string
 	}{
-		{"empty", "", ""},
-		{"provided", "cars", "cars"},
+		{name: "empty", want: "", table: ""},
+		{name: "provided", want: "cars", table: "cars"},
 	}
 
 	for _, tc := range tcases {
@@ -65,9 +65,9 @@ func TestErrTableNotFoundIs(t *testing.T) {
 		want bool
 		terr error
 	}{
-		{"matches", true, ErrTableNotFound{}},
-		{"other", false, fmt.Errorf("Some other error")},
-		{"wrapped", false, fmt.Errorf("Some other error wrapping: %w", ErrTableNotFound{})},
+		{name: "matches", want: true, terr: ErrTableNotFound{}},
+		{name: "other", want: false, terr: fmt.Errorf("Some other error")},
+		{name: "wrapped", want: false, terr: fmt.Errorf("Some other error wrapping: %w", ErrTableNotFound{})},
 	}
 
 	for _, tc := range tcases {
@@ -90,8 +90,8 @@ func TestIsErrTableNotFound(t *testing.T) {
 		err  error
 		want bool
 	}{
-		{"matches", ErrTableNotFound{}, true},
-		{"other", fmt.Errorf("Some other error"), false},
+		{name: "match", err: ErrTableNotFound{}, want: true},
+		{name: "other", err: fmt.Errorf("Sother error"), want: false},
 	}
 
 	for _, tc := range tcases {
@@ -112,11 +112,11 @@ func TestErrNoRowsError(t *testing.T) {
 		want string
 		err  errNoRows
 	}{
-		{"empty", "[] no rows found\nquery: ", errNoRows{}},
+		{name: "empty", want: "[] no rows found\nquery: ", err: errNoRows{}},
 		{
-			"withdata",
-			`[cars] no rows found` + "\n" + `query: "A" = "B"`,
-			errNoRows{
+			name: "withdata",
+			want: `[cars] no rows found` + "\n" + `query: "A" = "B"`,
+			err: errNoRows{
 				table: "cars",
 				clauses: Clauses{
 					"A": "B",
@@ -143,11 +143,11 @@ func TestErrNoRowsErrorClauses(t *testing.T) {
 		want Clauses
 		err  errNoRows
 	}{
-		{"empty", Clauses{}, errNoRows{}},
+		{name: "empty", want: Clauses{}, err: errNoRows{}},
 		{
-			"with",
-			Clauses{"A": "B"},
-			errNoRows{
+			name: "with",
+			want: Clauses{"A": "B"},
+			err: errNoRows{
 				clauses: Clauses{"A": "B"},
 			},
 		},
@@ -173,8 +173,8 @@ func TestErrNoRowsErrorRowsNotFound(t *testing.T) {
 		table   string
 		clauses Clauses
 	}{
-		{"empty", errNoRows{}, "", Clauses{}},
-		{"empty", errNoRows{table: "cars", clauses: Clauses{"A": "B"}}, "cars", Clauses{"A": "B"}},
+		{name: "empty", err: errNoRows{}, table: "", clauses: Clauses{}},
+		{name: "empty", err: errNoRows{table: "cars", clauses: Clauses{"A": "B"}}, table: "cars", clauses: Clauses{"A": "B"}},
 	}
 
 	for _, tc := range tcases {
@@ -199,8 +199,8 @@ func TestErrNoRowsErrorRowsIs(t *testing.T) {
 		err  error
 		want bool
 	}{
-		{"matches", &errNoRows{}, true},
-		{"no-match", fmt.Errorf("some error"), false},
+		{name: "matches", err: &errNoRows{}, want: true},
+		{name: "no-match", err: fmt.Errorf("some error"), want: false},
 	}
 
 	for _, tc := range tcases {
@@ -223,8 +223,8 @@ func TestIsErrNoRowsErrorRows(t *testing.T) {
 		err  error
 		want bool
 	}{
-		{"matches", &errNoRows{}, true},
-		{"no-match", fmt.Errorf("some error"), false},
+		{name: "matches", err: &errNoRows{}, want: true},
+		{name: "no-match", err: fmt.Errorf("some error"), want: false},
 	}
 
 	for _, tc := range tcases {
@@ -245,8 +245,8 @@ func TestAsErrNoRows(t *testing.T) {
 		err  error
 		ok   bool
 	}{
-		{"matches", &errNoRows{}, true},
-		{"no-match", fmt.Errorf("some error"), false},
+		{name: "matches", err: &errNoRows{}, ok: true},
+		{name: "no-match", err: fmt.Errorf("some error"), ok: false},
 	}
 
 	for _, tc := range tcases {

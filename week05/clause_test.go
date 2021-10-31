@@ -13,10 +13,10 @@ func TestClausesString(t *testing.T) {
 		clauses Clauses
 		want    string
 	}{
-		{"empty", Clauses{}, ""},
-		{"one", Clauses{"A": 1}, fmt.Sprintf(`"A" = %q`, 1)},
-		{"two", Clauses{"A": 1, "B": "aaa"}, fmt.Sprintf(`"A" = %q and "B" = "aaa"`, 1)},
-		{"more", Clauses{"A": 1, "B": "aaa", "C": true}, fmt.Sprintf(`"A" = %q and "B" = "aaa" and "C" = %%!q(bool=true)`, 1)},
+		{name: "empty", clauses: Clauses{}, want: ""},
+		{name: "one", clauses: Clauses{"A": 1}, want: fmt.Sprintf(`"A" = %q`, 1)},
+		{name: "two", clauses: Clauses{"A": 1, "B": "aaa"}, want: fmt.Sprintf(`"A" = %q and "B" = "aaa"`, 1)},
+		{name: "more", clauses: Clauses{"A": 1, "B": "aaa", "C": true}, want: fmt.Sprintf(`"A" = %q and "B" = "aaa" and "C" = %%!q(bool=true)`, 1)},
 	}
 
 	for _, tt := range tcases {
@@ -40,12 +40,12 @@ func TestClausesMatch(t *testing.T) {
 		model   Model
 		want    bool
 	}{
-		{"empty-match", Clauses{}, Model{}, true},
-		{"dispair-match", Clauses{}, Model{"a": "b"}, true},
-		{"dispair-no-match", Clauses{"a": "b"}, Model{}, false},
-		{"multiple-match", Clauses{"a": "b", "c": "d"}, Model{"a": "b", "c": "d"}, true},
-		{"multiple-dispair-match", Clauses{"a": "b", "c": "d"}, Model{"a": "b", "c": "d", "d": "c"}, true},
-		{"multiple-no-match", Clauses{"a": "b", "d": "c"}, Model{"a": "b", "c": "d"}, false},
+		{name: "empty-match", clauses: Clauses{}, model: Model{}, want: true},
+		{name: "dispair-match", clauses: Clauses{}, model: Model{"a": "b"}, want: true},
+		{name: "dispair-no-match", clauses: Clauses{"a": "b"}, model: Model{}, want: false},
+		{name: "multiple-match", clauses: Clauses{"a": "b", "c": "d"}, model: Model{"a": "b", "c": "d"}, want: true},
+		{name: "multiple-dispair-match", clauses: Clauses{"a": "b", "c": "d"}, model: Model{"a": "b", "c": "d", "d": "c"}, want: true},
+		{name: "multiple-no-match", clauses: Clauses{"a": "b", "d": "c"}, model: Model{"a": "b", "c": "d"}, want: false},
 	}
 
 	for _, tt := range tcases {
