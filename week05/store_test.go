@@ -69,7 +69,7 @@ func TestStoreLen(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			count, terr := tt.store.Len(tt.table)
 			if count != tt.count {
-				t.Errorf("expected %v, got %v", tt.count, count)
+				t.Fatalf("expected %v, got %v", tt.count, count)
 			}
 
 			checkErrorsMatch(t, tt.err, terr)
@@ -85,12 +85,12 @@ func TestStoreInsert(t *testing.T) {
 
 	len, _ := store.Len("car")
 	if len != 1 {
-		t.Errorf("expected len %v, got %v", 1, len)
+		t.Fatalf("expected len %v, got %v", 1, len)
 	}
 
 	mods, err := store.All("car")
 	if err != nil {
-		t.Errorf("expected err %v, got nil", err)
+		t.Fatalf("expected err %v, got nil", err)
 	}
 
 	checkModelsMatch(t, Models{{"A": "B"}}, mods)
@@ -98,7 +98,7 @@ func TestStoreInsert(t *testing.T) {
 
 	len, _ = store.Len("car")
 	if len != 2 {
-		t.Errorf("expected len %v, want %v", len, 1)
+		t.Fatalf("expected len %v, want %v", len, 1)
 	}
 }
 
@@ -155,7 +155,7 @@ func TestStoreSelect(t *testing.T) {
 			checkErrorsMatch(t, err, tt.err)
 
 			if len(got) != tt.len {
-				t.Errorf("expected len %v, got %v", tt.len, len(got))
+				t.Fatalf("expected len %v, got %v", tt.len, len(got))
 			}
 		})
 	}
@@ -173,7 +173,7 @@ func checkErrorsMatch(t *testing.T, err, err2 error) {
 		return
 	}
 
-	t.Errorf("expected err %v, got %v", err, err2)
+	t.Fatalf("expected err %v, got %v", err, err2)
 }
 
 func checkModelsMatch(t *testing.T, models, models2 Models) {
@@ -183,7 +183,7 @@ func checkModelsMatch(t *testing.T, models, models2 Models) {
 			continue
 		}
 
-		t.Errorf("expected %v, got %v", models, models2)
+		t.Fatalf("expected %v, got %v", models, models2)
 	}
 }
 
@@ -192,7 +192,7 @@ func checkDataMatches(t *testing.T, exp, act data) {
 	for table, v := range exp {
 		x, ok := act[table]
 		if !ok {
-			t.Errorf("expected %v, got %v", exp, act)
+			t.Fatalf("expected %v, got %v", exp, act)
 
 			return
 		}
@@ -200,7 +200,7 @@ func checkDataMatches(t *testing.T, exp, act data) {
 		for i, el := range x {
 			// Check if the element matches
 			if !Clauses(el).Match(v[i]) {
-				t.Errorf("expected %v, got %v", exp, act)
+				t.Fatalf("expected %v, got %v", exp, act)
 
 				return
 			}

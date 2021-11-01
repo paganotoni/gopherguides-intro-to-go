@@ -17,7 +17,7 @@ func TestMovieRate(t *testing.T) {
 
 		expErr := errors.New("can't review a movie without watching it first")
 		if err.Error() != expErr.Error() {
-			t.Errorf("expected error to be %v got %v", "", err)
+			t.Fatalf("expected error to be %v got %v", "", err)
 		}
 	})
 
@@ -26,11 +26,11 @@ func TestMovieRate(t *testing.T) {
 		err := movie.Rate(0.5)
 
 		if err != nil {
-			t.Errorf("expected error to be nil got %v", err)
+			t.Fatalf("expected error to be nil got %v", err)
 		}
 
 		if len(movie.ratings) != 1 {
-			t.Errorf("expected length of ratings to be 1 got %v", len(movie.ratings))
+			t.Fatalf("expected length of ratings to be 1 got %v", len(movie.ratings))
 		}
 	})
 }
@@ -44,15 +44,15 @@ func TestMoviePlay(t *testing.T) {
 
 		err := movie.Play(100)
 		if err != nil {
-			t.Errorf("expected error to be nil got %v", err)
+			t.Fatalf("expected error to be nil got %v", err)
 		}
 
 		if movie.plays != 1 {
-			t.Errorf("expected plays to be 1 got %v", movie.plays)
+			t.Fatalf("expected plays to be 1 got %v", movie.plays)
 		}
 
 		if movie.viewers != 100 {
-			t.Errorf("expected viewers to be 100 got %v", movie.viewers)
+			t.Fatalf("expected viewers to be 100 got %v", movie.viewers)
 		}
 	})
 
@@ -61,7 +61,7 @@ func TestMoviePlay(t *testing.T) {
 		err := movie.Play(-10)
 		expErr := fmt.Errorf("invalid number of viewers, must be greather than 0")
 		if err.Error() != expErr.Error() {
-			t.Errorf("expected error to be %v got %v", expErr, err)
+			t.Fatalf("expected error to be %v got %v", expErr, err)
 		}
 	})
 }
@@ -86,7 +86,7 @@ func TestMovieRating(t *testing.T) {
 
 			rating := movie.Rating()
 			if rating != tcase.rating {
-				t.Errorf("expected rating to be %v got %v", tcase.rating, rating)
+				t.Fatalf("expected rating to be %v got %v", tcase.rating, rating)
 			}
 		})
 
@@ -97,12 +97,12 @@ func TestMovieRating(t *testing.T) {
 func TestMoviePlays(t *testing.T) {
 	mo := Movie{}
 	if mo.Plays() != 0 {
-		t.Errorf("expected plays to be 0 got %v", mo.Plays())
+		t.Fatalf("expected plays to be 0 got %v", mo.Plays())
 	}
 
 	mo.plays = 100
 	if mo.Plays() != 100 {
-		t.Errorf("expected plays to be 100 got %v", mo.Plays())
+		t.Fatalf("expected plays to be 100 got %v", mo.Plays())
 	}
 }
 
@@ -110,12 +110,12 @@ func TestMoviePlays(t *testing.T) {
 func TestMovieViewers(t *testing.T) {
 	mo := Movie{}
 	if mo.Viewers() != 0 {
-		t.Errorf("expected viewers to be 0 got %v", mo.Viewers())
+		t.Fatalf("expected viewers to be 0 got %v", mo.Viewers())
 	}
 
 	mo.viewers = 100
 	if mo.Viewers() != 100 {
-		t.Errorf("expected viewers to be 100 got %v", mo.Viewers())
+		t.Fatalf("expected viewers to be 100 got %v", mo.Viewers())
 	}
 }
 
@@ -134,7 +134,7 @@ func TestMovieString(t *testing.T) {
 	for _, tcase := range tcases {
 		t.Run(tcase.name, func(t *testing.T) {
 			if tcase.movie.String() != tcase.str {
-				t.Errorf("expected string to be %v got %v", tcase.str, tcase.movie.String())
+				t.Fatalf("expected string to be %v got %v", tcase.str, tcase.movie.String())
 			}
 		})
 	}
@@ -162,16 +162,16 @@ func TestTeatherPlay(t *testing.T) {
 		t.Run(tcase.name, func(t *testing.T) {
 			err := theatre.Play(tcase.viewers, tcase.movies...)
 			if tcase.expectedError != nil && err.Error() != tcase.expectedError.Error() {
-				t.Errorf("expected error to be %v got %v", tcase.expectedError, err)
+				t.Fatalf("expected error to be %v got %v", tcase.expectedError, err)
 			}
 
 			for _, mo := range tcase.movies {
 				if mo.plays < 1 {
-					t.Errorf("expected plays to be greater than 0 got %v", mo.plays)
+					t.Fatalf("expected plays to be greater than 0 got %v", mo.plays)
 				}
 
 				if mo.viewers != tcase.viewers {
-					t.Errorf("expected viewers to be %v got %v", tcase.viewers, mo.viewers)
+					t.Fatalf("expected viewers to be %v got %v", tcase.viewers, mo.viewers)
 				}
 			}
 		})
@@ -202,24 +202,24 @@ func TestTeatherCritique(t *testing.T) {
 	err := theatre.Critique(movies, lazyCritique)
 
 	if err != nil {
-		t.Errorf("expected error to be nil got %v", err)
+		t.Fatalf("expected error to be nil got %v", err)
 	}
 
 	for _, mo := range movies {
 		if mo.plays != 1 {
-			t.Errorf("expected plays to be 1 got %v", mo.plays)
+			t.Fatalf("expected plays to be 1 got %v", mo.plays)
 		}
 
 		if mo.viewers != 1 {
-			t.Errorf("expected viewers to be 1 got %v", mo.viewers)
+			t.Fatalf("expected viewers to be 1 got %v", mo.viewers)
 		}
 
 		if len(mo.ratings) != 1 {
-			t.Errorf("expected length of ratings to be 1 got %v", len(mo.ratings))
+			t.Fatalf("expected length of ratings to be 1 got %v", len(mo.ratings))
 		}
 
 		if mo.ratings[0] != 5.0 {
-			t.Errorf("expected rating to be 5.0 got %v", mo.ratings[0])
+			t.Fatalf("expected rating to be 5.0 got %v", mo.ratings[0])
 		}
 	}
 }

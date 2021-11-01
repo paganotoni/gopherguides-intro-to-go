@@ -25,7 +25,7 @@ func TestErrTableNotFoundError(t *testing.T) {
 
 			got := err.Error()
 			if got != tc.want {
-				t.Errorf("expected %q, got %q", tc.want, got)
+				t.Fatalf("expected %q, got %q", tc.want, got)
 			}
 		})
 	}
@@ -51,7 +51,7 @@ func TestErrTableNotFoundTableNotFound(t *testing.T) {
 
 			got := err.TableNotFound()
 			if got != tc.want {
-				t.Errorf("expected %q, got %q", tc.want, got)
+				t.Fatalf("expected %q, got %q", tc.want, got)
 			}
 		})
 	}
@@ -76,7 +76,7 @@ func TestErrTableNotFoundIs(t *testing.T) {
 
 			got := e.Is(tc.terr)
 			if got != tc.want {
-				t.Errorf("expected %t, got %t", tc.want, got)
+				t.Fatalf("expected %t, got %t", tc.want, got)
 			}
 		})
 	}
@@ -98,7 +98,7 @@ func TestIsErrTableNotFound(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := IsErrTableNotFound(tc.err)
 			if got != tc.want {
-				t.Errorf("expected %t, got %t", tc.want, got)
+				t.Fatalf("expected %t, got %t", tc.want, got)
 			}
 		})
 	}
@@ -129,7 +129,7 @@ func TestErrNoRowsError(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.err.Error()
 			if got != tc.want {
-				t.Errorf("expected %q, got %q", tc.want, got)
+				t.Fatalf("expected %q, got %q", tc.want, got)
 			}
 		})
 	}
@@ -157,7 +157,7 @@ func TestErrNoRowsErrorClauses(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.err.Clauses()
 			if got.String() != tc.want.String() {
-				t.Errorf("expected %q, got %q", tc.want, got)
+				t.Fatalf("expected %q, got %q", tc.want, got)
 			}
 		})
 	}
@@ -181,11 +181,11 @@ func TestErrNoRowsErrorRowsNotFound(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			gtable, gclauses := tc.err.RowNotFound()
 			if gtable != tc.table {
-				t.Errorf("expected %q for tables, got %q", tc.table, gtable)
+				t.Fatalf("expected %q for tables, got %q", tc.table, gtable)
 			}
 
 			if !gclauses.Match(Model(tc.clauses)) {
-				t.Errorf("expected %q for clauses, got %q", tc.clauses, gclauses)
+				t.Fatalf("expected %q for clauses, got %q", tc.clauses, gclauses)
 			}
 		})
 	}
@@ -209,7 +209,7 @@ func TestErrNoRowsErrorRowsIs(t *testing.T) {
 
 			got := e.Is(tc.err)
 			if got != tc.want {
-				t.Errorf("expected %t, got %t", tc.want, got)
+				t.Fatalf("expected %t, got %t", tc.want, got)
 			}
 		})
 	}
@@ -231,7 +231,7 @@ func TestIsErrNoRowsErrorRows(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := IsErrNoRows(tc.err)
 			if got != tc.want {
-				t.Errorf("expected %t, got %t", tc.want, got)
+				t.Fatalf("expected %t, got %t", tc.want, got)
 			}
 		})
 	}
@@ -253,7 +253,7 @@ func TestAsErrNoRows(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			_, got := AsErrNoRows(tc.err)
 			if got != tc.ok {
-				t.Errorf("expected %t, got %t", tc.ok, got)
+				t.Fatalf("expected %t, got %t", tc.ok, got)
 			}
 		})
 	}

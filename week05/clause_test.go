@@ -25,7 +25,7 @@ func TestClausesString(t *testing.T) {
 			c := tt.clauses
 			got := c.String()
 			if got != tt.want {
-				t.Errorf("expected %v, got %v", tt.want, got)
+				t.Fatalf("expected %v, got %v", tt.want, got)
 			}
 		})
 	}
@@ -53,7 +53,7 @@ func TestClausesMatch(t *testing.T) {
 			c := tt.clauses
 			got := c.Match(tt.model)
 			if got != tt.want {
-				t.Errorf("expected %v, got %v", tt.want, got)
+				t.Fatalf("expected %v, got %v", tt.want, got)
 			}
 		})
 	}

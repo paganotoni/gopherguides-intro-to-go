@@ -16,13 +16,13 @@ func TestArray(t *testing.T) {
 
 	for i, v := range act {
 		if v != exp[i] {
-			t.Errorf("Expected %v, got %v", exp[i], v)
+			t.Fatalf("Expected %v, got %v", exp[i], v)
 		}
 	}
 
 	// For array I'm not sure this test makes much sense
 	if len(exp) != len(act) {
-		t.Errorf("Expected %v, got %v", len(exp), len(act))
+		t.Fatalf("Expected %v, got %v", len(exp), len(act))
 	}
 }
 
@@ -38,13 +38,13 @@ func TestSlice(t *testing.T) {
 
 	for i, v := range act {
 		if v != exp[i] {
-			t.Errorf("Expected %v, got %v", exp[i], v)
+			t.Fatalf("Expected %v, got %v", exp[i], v)
 		}
 	}
 
 	// For array I'm not sure this test makes much sense
 	if len(exp) != len(act) {
-		t.Errorf("Expected %v, got %v", len(exp), len(act))
+		t.Fatalf("Expected %v, got %v", len(exp), len(act))
 	}
 }
 
@@ -65,7 +65,7 @@ func TestMap(t *testing.T) {
 	for k := range exp {
 		v, ok := act[k]
 		if !ok {
-			t.Errorf("Expected %v, got %v", exp[k], v)
+			t.Fatalf("Expected %v, got %v", exp[k], v)
 		}
 	}
 }
