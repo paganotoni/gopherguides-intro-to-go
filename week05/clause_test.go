@@ -25,7 +25,7 @@ func TestClausesString(t *testing.T) {
 			c := tt.clauses
 			got := c.String()
 			if got != tt.want {
-				t.Errorf("Clauses.String() = %v, want %v", got, tt.want)
+				t.Errorf("expected %v, got %v", tt.want, got)
 			}
 		})
 	}
@@ -40,12 +40,12 @@ func TestClausesMatch(t *testing.T) {
 		model   Model
 		want    bool
 	}{
-		{name: "empty-match", clauses: Clauses{}, model: Model{}, want: true},
-		{name: "dispair-match", clauses: Clauses{}, model: Model{"a": "b"}, want: true},
-		{name: "dispair-no-match", clauses: Clauses{"a": "b"}, model: Model{}, want: false},
-		{name: "multiple-match", clauses: Clauses{"a": "b", "c": "d"}, model: Model{"a": "b", "c": "d"}, want: true},
-		{name: "multiple-dispair-match", clauses: Clauses{"a": "b", "c": "d"}, model: Model{"a": "b", "c": "d", "d": "c"}, want: true},
-		{name: "multiple-no-match", clauses: Clauses{"a": "b", "d": "c"}, model: Model{"a": "b", "c": "d"}, want: false},
+		{name: "empty match", clauses: Clauses{}, model: Model{}, want: true},
+		{name: "dispair match", clauses: Clauses{}, model: Model{"a": "b"}, want: true},
+		{name: "dispair no match", clauses: Clauses{"a": "b"}, model: Model{}, want: false},
+		{name: "multiple match", clauses: Clauses{"a": "b", "c": "d"}, model: Model{"a": "b", "c": "d"}, want: true},
+		{name: "multiple dispair match", clauses: Clauses{"a": "b", "c": "d"}, model: Model{"a": "b", "c": "d", "d": "c"}, want: true},
+		{name: "multiple no-match", clauses: Clauses{"a": "b", "d": "c"}, model: Model{"a": "b", "c": "d"}, want: false},
 	}
 
 	for _, tt := range tcases {
@@ -53,7 +53,7 @@ func TestClausesMatch(t *testing.T) {
 			c := tt.clauses
 			got := c.Match(tt.model)
 			if got != tt.want {
-				t.Errorf("Clauses.Match() = %v, want %v", got, tt.want)
+				t.Errorf("expected %v, got %v", tt.want, got)
 			}
 		})
 	}

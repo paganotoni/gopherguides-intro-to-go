@@ -1,7 +1,7 @@
 package demo
 
 import (
-	"reflect"
+	"errors"
 	"testing"
 )
 
@@ -20,9 +20,7 @@ func TestStoreDb(t *testing.T) {
 	for _, tt := range tcases {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.store.db()
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("got %v, want %v", got, tt.want)
-			}
+			checkDataMatches(t, tt.want, got)
 		})
 	}
 }
@@ -44,13 +42,9 @@ func TestStoreAll(t *testing.T) {
 	for _, tt := range tcases {
 		t.Run(tt.name, func(t *testing.T) {
 			tmod, terr := tt.store.All(tt.table)
-			if !reflect.DeepEqual(terr, tt.err) {
-				t.Errorf("got %v, want %v", terr, tt.err)
-			}
 
-			if !reflect.DeepEqual(tmod, tt.models) {
-				t.Errorf("got %v, want %v", tmod, tt.models)
-			}
+			checkErrorsMatch(t, tt.err, terr)
+			checkModelsMatch(t, tt.models, tmod)
 		})
 	}
 }
@@ -75,13 +69,10 @@ func TestStoreLen(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			count, terr := tt.store.Len(tt.table)
 			if count != tt.count {
-				t.Errorf("got %v, want %v", count, tt.count)
+				t.Errorf("expected %v, got %v", tt.count, count)
 			}
 
-			if !reflect.DeepEqual(terr, tt.err) {
-				t.Errorf("got %v, want %v", terr, tt.err)
-			}
-
+			checkErrorsMatch(t, tt.err, terr)
 		})
 	}
 }
@@ -94,23 +85,20 @@ func TestStoreInsert(t *testing.T) {
 
 	len, _ := store.Len("car")
 	if len != 1 {
-		t.Errorf("got len %v, want %v", len, 1)
+		t.Errorf("expected len %v, got %v", 1, len)
 	}
 
 	mods, err := store.All("car")
 	if err != nil {
-		t.Errorf("got err %v, want nil", err)
+		t.Errorf("expected err %v, got nil", err)
 	}
 
-	if !reflect.DeepEqual(mods, Models{{"A": "B"}}) {
-		t.Errorf("got %v, want %v", mods, Models{{"A": "B"}})
-	}
-
+	checkModelsMatch(t, Models{{"A": "B"}}, mods)
 	store.Insert("car", Model{"C": "D"})
 
 	len, _ = store.Len("car")
 	if len != 2 {
-		t.Errorf("got len %v, want %v", len, 1)
+		t.Errorf("expected len %v, want %v", len, 1)
 	}
 }
 
@@ -164,13 +152,58 @@ func TestStoreSelect(t *testing.T) {
 	for _, tt := range tcases {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.store.Select("cars", tt.clauses)
-			if !reflect.DeepEqual(err, tt.err) {
-				t.Errorf("got err %v, want %v", err, tt.err)
-			}
+			checkErrorsMatch(t, err, tt.err)
 
 			if len(got) != tt.len {
-				t.Errorf("got len %v, want %v", len(got), tt.len)
+				t.Errorf("expected len %v, got %v", tt.len, len(got))
 			}
 		})
+	}
+}
+
+// Helper to check if errors are matching.
+func checkErrorsMatch(t *testing.T, err, err2 error) {
+	t.Helper()
+
+	if err == nil && err2 == nil {
+		return
+	}
+
+	if errors.Is(err, err) {
+		return
+	}
+
+	t.Errorf("expected err %v, got %v", err, err2)
+}
+
+func checkModelsMatch(t *testing.T, models, models2 Models) {
+	t.Helper()
+	for i, v := range models {
+		if Clauses(v).Match(models2[i]) {
+			continue
+		}
+
+		t.Errorf("expected %v, got %v", models, models2)
+	}
+}
+
+func checkDataMatches(t *testing.T, exp, act data) {
+	t.Helper()
+	for table, v := range exp {
+		x, ok := act[table]
+		if !ok {
+			t.Errorf("expected %v, got %v", exp, act)
+
+			return
+		}
+
+		for i, el := range x {
+			// Check if the element matches
+			if !Clauses(el).Match(v[i]) {
+				t.Errorf("expected %v, got %v", exp, act)
+
+				return
+			}
+		}
 	}
 }

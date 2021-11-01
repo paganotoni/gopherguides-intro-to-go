@@ -25,7 +25,7 @@ func TestErrTableNotFoundError(t *testing.T) {
 
 			got := err.Error()
 			if got != tc.want {
-				t.Errorf("got %q, want %q", got, tc.want)
+				t.Errorf("expected %q, got %q", tc.want, got)
 			}
 		})
 	}
@@ -51,7 +51,7 @@ func TestErrTableNotFoundTableNotFound(t *testing.T) {
 
 			got := err.TableNotFound()
 			if got != tc.want {
-				t.Errorf("got %q, want %q", got, tc.want)
+				t.Errorf("expected %q, got %q", tc.want, got)
 			}
 		})
 	}
@@ -76,7 +76,7 @@ func TestErrTableNotFoundIs(t *testing.T) {
 
 			got := e.Is(tc.terr)
 			if got != tc.want {
-				t.Errorf("got %t, want %t", got, tc.want)
+				t.Errorf("expected %t, got %t", tc.want, got)
 			}
 		})
 	}
@@ -98,7 +98,7 @@ func TestIsErrTableNotFound(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := IsErrTableNotFound(tc.err)
 			if got != tc.want {
-				t.Errorf("got %t, want %t", got, tc.want)
+				t.Errorf("expected %t, got %t", tc.want, got)
 			}
 		})
 	}
@@ -114,7 +114,7 @@ func TestErrNoRowsError(t *testing.T) {
 	}{
 		{name: "empty", want: "[] no rows found\nquery: ", err: errNoRows{}},
 		{
-			name: "withdata",
+			name: "with data",
 			want: `[cars] no rows found` + "\n" + `query: "A" = "B"`,
 			err: errNoRows{
 				table: "cars",
@@ -129,7 +129,7 @@ func TestErrNoRowsError(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.err.Error()
 			if got != tc.want {
-				t.Errorf("got %q, want %q", got, tc.want)
+				t.Errorf("expected %q, got %q", tc.want, got)
 			}
 		})
 	}
@@ -157,7 +157,7 @@ func TestErrNoRowsErrorClauses(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got := tc.err.Clauses()
 			if got.String() != tc.want.String() {
-				t.Errorf("got %q, want %q", got, tc.want)
+				t.Errorf("expected %q, got %q", tc.want, got)
 			}
 		})
 	}
@@ -181,11 +181,11 @@ func TestErrNoRowsErrorRowsNotFound(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			gtable, gclauses := tc.err.RowNotFound()
 			if gtable != tc.table {
-				t.Errorf("got %q for tables, wanted %q", gtable, tc.table)
+				t.Errorf("expected %q for tables, got %q", tc.table, gtable)
 			}
 
 			if !gclauses.Match(Model(tc.clauses)) {
-				t.Errorf("got %q for clauses, wanted %q", gclauses, tc.clauses)
+				t.Errorf("expected %q for clauses, got %q", tc.clauses, gclauses)
 			}
 		})
 	}
@@ -200,7 +200,7 @@ func TestErrNoRowsErrorRowsIs(t *testing.T) {
 		want bool
 	}{
 		{name: "matches", err: &errNoRows{}, want: true},
-		{name: "no-match", err: fmt.Errorf("some error"), want: false},
+		{name: "no match", err: fmt.Errorf("some error"), want: false},
 	}
 
 	for _, tc := range tcases {
@@ -209,7 +209,7 @@ func TestErrNoRowsErrorRowsIs(t *testing.T) {
 
 			got := e.Is(tc.err)
 			if got != tc.want {
-				t.Errorf("got %t, want %t", got, tc.want)
+				t.Errorf("expected %t, got %t", tc.want, got)
 			}
 		})
 	}
@@ -224,14 +224,14 @@ func TestIsErrNoRowsErrorRows(t *testing.T) {
 		want bool
 	}{
 		{name: "matches", err: &errNoRows{}, want: true},
-		{name: "no-match", err: fmt.Errorf("some error"), want: false},
+		{name: "no match", err: fmt.Errorf("some error"), want: false},
 	}
 
 	for _, tc := range tcases {
 		t.Run(tc.name, func(t *testing.T) {
 			got := IsErrNoRows(tc.err)
 			if got != tc.want {
-				t.Errorf("got %t, want %t", got, tc.want)
+				t.Errorf("expected %t, got %t", tc.want, got)
 			}
 		})
 	}
@@ -246,14 +246,14 @@ func TestAsErrNoRows(t *testing.T) {
 		ok   bool
 	}{
 		{name: "matches", err: &errNoRows{}, ok: true},
-		{name: "no-match", err: fmt.Errorf("some error"), ok: false},
+		{name: "no match", err: fmt.Errorf("some error"), ok: false},
 	}
 
 	for _, tc := range tcases {
 		t.Run(tc.name, func(t *testing.T) {
 			_, got := AsErrNoRows(tc.err)
 			if got != tc.ok {
-				t.Errorf("got %t, want %t", got, tc.ok)
+				t.Errorf("expected %t, got %t", tc.ok, got)
 			}
 		})
 	}
