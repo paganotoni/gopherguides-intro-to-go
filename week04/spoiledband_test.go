@@ -35,6 +35,6 @@ func TestSpoiledBand(t *testing.T) {
 			continue
 		}
 
-		t.Errorf("expected log to contain %s", content)
+		t.Fatalf("expected log to contain %s", content)
 	}
 }
