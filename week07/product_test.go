@@ -1,4 +1,4 @@
-package week06
+package week07
 
 import "testing"
 
