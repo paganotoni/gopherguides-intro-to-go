@@ -10,8 +10,6 @@ import (
 	"time"
 )
 
-const TEST_SIGNAL = syscall.SIGUSR2
-
 // snippet: example
 func Test_Run(t *testing.T) {
 	t.Parallel()
@@ -38,12 +36,13 @@ func Test_Run(t *testing.T) {
 	})
 
 	t.Run("interruption by a signal", func(t *testing.T) {
-		t.Parallel()
 		if runtime.GOOS == "windows" {
 			t.Skip("this test can only run on unix systems due to the signal")
 		}
 
-		ctx, cnFn := signal.NotifyContext(context.Background(), TEST_SIGNAL)
+		t.Parallel()
+
+		ctx, cnFn := signal.NotifyContext(context.Background(), syscall.SIGUSR2)
 		defer cnFn()
 
 		go func() {
@@ -52,7 +51,7 @@ func Test_Run(t *testing.T) {
 			t.Log("sending test signal")
 
 			// send the TEST_SIGNAL to the system
-			syscall.Kill(syscall.Getpid(), TEST_SIGNAL)
+			syscall.Kill(syscall.Getpid(), syscall.SIGUSR2)
 		}()
 
 		products := []*Product{
