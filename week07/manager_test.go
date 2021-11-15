@@ -3,6 +3,7 @@ package week07
 import (
 	"context"
 	"os/signal"
+	"runtime"
 	"sync"
 	"syscall"
 	"testing"
@@ -38,6 +39,9 @@ func Test_Run(t *testing.T) {
 
 	t.Run("interruption by a signal", func(t *testing.T) {
 		t.Parallel()
+		if runtime.GOOS == "windows" {
+			t.Skip("this test can only run on unix systems due to the signal")
+		}
 
 		ctx, cnFn := signal.NotifyContext(context.Background(), TEST_SIGNAL)
 		defer cnFn()
