@@ -7,11 +7,11 @@ func TestErrors(t *testing.T) {
 		err error
 		msg string
 	}{
-		{ErrInvalidQuantity(-1), "quantity must be greater than 0, got -1"},
-		{ErrProductNotBuilt("product not built"), "product not built"},
-		{ErrInvalidEmployee(-1), "invalid employee number: -1"},
-		{ErrInvalidEmployeeCount(-1), "invalid employee count: -1"},
-		{ErrManagerStopped{}, "manager is stopped"},
+		{err: ErrInvalidQuantity(-1), msg: "quantity must be greater than 0, got -1"},
+		{err: ErrProductNotBuilt("product not built"), msg: "product not built"},
+		{err: ErrInvalidEmployee(-1), msg: "invalid employee number: -1"},
+		{err: ErrInvalidEmployeeCount(-1), msg: "invalid employee count: -1"},
+		{err: ErrManagerStopped{}, msg: "manager is stopped"},
 	}
 
 	for _, tc := range tcases {
