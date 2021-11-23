@@ -64,14 +64,23 @@ func TestManagerAssignOk(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	for i := 0; i < 25; i++ {
-		go m.Assign(&Product{
+	pxs := []Product{
+		Product{
 			Materials: Materials{Material("iron"): 1},
-		})
+		},
 
-		go m.Assign(&Product{
-			Materials: Materials{Material("copper"): 1},
-		})
+		Product{
+			Materials: Materials{Material("copper"): 1, Material("cotton"): 1},
+		},
+	}
+
+	var total int
+	for i := 0; i < 15; i++ {
+		for _, v := range pxs {
+			total++
+
+			go m.Assign(&v)
+		}
 	}
 
 	var completed []CompletedProduct
@@ -80,14 +89,14 @@ func TestManagerAssignOk(t *testing.T) {
 		for cp := range m.Completed() {
 			completed = append(completed, cp)
 
-			if len(completed) >= 50 {
+			if len(completed) >= total {
 				m.Stop()
 			}
 		}
 	}()
 
 	<-ctx.Done()
-	if len(completed) != 20 {
+	if len(completed) != total {
 		t.Errorf("expected 20 products, got %d", len(completed))
 	}
 }

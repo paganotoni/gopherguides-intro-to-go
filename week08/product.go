@@ -62,10 +62,10 @@ func (p *Product) Build(e Employee, w *Warehouse) error {
 		w.Retrieve(k, v)
 	}
 
-	w.RLock()
 	// mark the product as built
+	p.Lock()
 	p.builtBy = e
-	w.RUnlock()
+	p.Unlock()
 
 	return nil
 }
@@ -73,9 +73,11 @@ func (p *Product) Build(e Employee, w *Warehouse) error {
 // IsValid returns an error if the product is invalid.
 // A valid product has a quantity > 0.
 func (p Product) IsValid() error {
+	p.RLock()
 	if len(p.Materials) == 0 {
 		return ErrInvalidMaterials(len(p.Materials))
 	}
+	p.RUnlock()
 
 	return nil
 }

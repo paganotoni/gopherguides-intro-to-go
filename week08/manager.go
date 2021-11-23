@@ -127,9 +127,12 @@ func (m *Manager) Complete(e Employee, p *Product) error {
 
 // completedCh returns the channel for CompletedProducts
 func (m *Manager) completedCh() chan CompletedProduct {
+	m.Lock()
 	if m.completed == nil {
 		m.completed = make(chan CompletedProduct)
 	}
+	m.Unlock()
+
 	return m.completed
 }
 
