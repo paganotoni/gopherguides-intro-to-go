@@ -55,7 +55,7 @@ func (w *Warehouse) fill(m Material) context.Context {
 	go func() {
 		defer cancel()
 
-		w.RLock()
+		w.Lock()
 		if w.cap <= 0 {
 			w.cap = 10
 		}
@@ -63,12 +63,12 @@ func (w *Warehouse) fill(m Material) context.Context {
 		if w.materials == nil {
 			w.materials = Materials{}
 		}
-		w.RUnlock()
+		w.Unlock()
 
 		cap := w.cap
 		mats := w.materials
 
-		w.RLock()
+		w.Lock()
 		// until the warehouse is full of
 		// the material create the material and
 		// fill the warehouse
@@ -78,7 +78,7 @@ func (w *Warehouse) fill(m Material) context.Context {
 			mats[m]++
 			q = mats[m]
 		}
-		w.RUnlock()
+		w.Unlock()
 	}()
 
 	return ctx
