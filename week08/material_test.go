@@ -10,10 +10,10 @@ func TestMaterialDuration(t *testing.T) {
 		material Material
 		duration time.Duration
 	}{
-		{Material("iron"), 4 * time.Second},
-		{Material("steel"), 5 * time.Second},
-		{Material("wood"), 4 * time.Second},
-		{Material("cotton"), 6 * time.Second},
+		{Material("iron"), 4 * time.Millisecond},
+		{Material("steel"), 5 * time.Millisecond},
+		{Material("wood"), 4 * time.Millisecond},
+		{Material("cotton"), 6 * time.Millisecond},
 	}
 
 	for _, tcase := range tcases {
