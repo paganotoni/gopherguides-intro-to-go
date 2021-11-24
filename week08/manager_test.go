@@ -2,6 +2,7 @@ package week08
 
 import (
 	"context"
+	"fmt"
 	"testing"
 )
 
@@ -64,14 +65,9 @@ func TestManagerAssignOk(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	pxs := []Product{
-		Product{
-			Materials: Materials{Material("iron"): 1},
-		},
-
-		Product{
-			Materials: Materials{Material("copper"): 1, Material("cotton"): 1},
-		},
+	pxs := []Materials{
+		Materials{Material("iron"): 1},
+		Materials{Material("copper"): 1, Material("cotton"): 1},
 	}
 
 	var total int
@@ -79,7 +75,7 @@ func TestManagerAssignOk(t *testing.T) {
 		for _, v := range pxs {
 			total++
 
-			go m.Assign(&v)
+			go m.Assign(&Product{Materials: v})
 		}
 	}
 
@@ -99,4 +95,46 @@ func TestManagerAssignOk(t *testing.T) {
 	if len(completed) != total {
 		t.Errorf("expected 20 products, got %d", len(completed))
 	}
+}
+
+func Test_Manager_Demonstration(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	m := &Manager{}
+
+	ctx, err := m.Start(ctx, 5)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for i := 0; i < 10; i++ {
+		go m.Assign(ProductA)
+		go m.Assign(ProductB)
+	}
+
+	var completed []CompletedProduct
+
+	go func() {
+		fmt.Println("waiting for a completed product")
+
+		for cp := range m.Completed() {
+			completed = append(completed, cp)
+
+			if len(completed) >= 20 {
+				m.Stop()
+			}
+		}
+	}()
+
+	fmt.Println("waiting for the ctx to be cancelled")
+	<-ctx.Done()
+
+	fmt.Println("validating output")
+	if len(completed) != 20 {
+		t.Fatalf("expected 20 products, got %d", len(completed))
+	}
+
+	fmt.Println("validated")
 }

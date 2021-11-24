@@ -18,6 +18,7 @@ type Manager struct {
 	jobs      chan *Product
 	stopped   bool
 
+	stopOnce sync.Once
 	sync.RWMutex
 }
 
@@ -33,19 +34,13 @@ func (m *Manager) Start(ctx context.Context, count int) (context.Context, error)
 
 	// create a new cancellation context
 	ctx, cancel := context.WithCancel(ctx)
+
+	m.Lock()
 	m.cancel = cancel
-
-	if m.Warehouse == nil {
-		m.Warehouse = &Warehouse{}
-	}
-
-	// start the warehouse
-	// this returns a context that can be listened to
-	// for cancellation notification from the warehouse
-	ctx = m.Warehouse.Start(ctx)
+	m.Unlock()
 
 	// launch a goroutine to listen context cancellation
-	go func() {
+	go func(ctx context.Context) {
 		// listen for context cancellation
 		// this could come from the external context
 		// passed to m.Start()
@@ -56,7 +51,18 @@ func (m *Manager) Start(ctx context.Context, count int) (context.Context, error)
 
 		// call Stop()
 		m.Stop()
-	}()
+	}(ctx)
+
+	m.Lock()
+	if m.Warehouse == nil {
+		m.Warehouse = &Warehouse{}
+	}
+	m.Unlock()
+
+	// start the warehouse
+	// this returns a context that can be listened to
+	// for cancellation notification from the warehouse
+	ctx = m.Warehouse.Start(ctx)
 
 	for i := 0; i < count; i++ {
 
@@ -76,9 +82,14 @@ func (m *Manager) Start(ctx context.Context, count int) (context.Context, error)
 // as employeess become available. An invalid product
 // will return an error.
 func (m *Manager) Assign(products ...*Product) error {
+	m.RLock()
 	if m.stopped {
+		m.RUnlock()
+
 		return ErrManagerStopped{}
 	}
+
+	m.RUnlock()
 
 	// loop through each product and assign it to an employee
 	for _, p := range products {
@@ -111,10 +122,12 @@ func (m *Manager) Complete(e Employee, p *Product) error {
 		return err
 	}
 
+	p.Lock()
 	cp := CompletedProduct{
 		Employee: e,
 		Product:  *p, // deference pointer to value type ype t
 	}
+	p.Unlock()
 
 	// fmt.Printf("TODO >> manager.go:102 cp %[1]T %[1]v\n", cp)
 	// Send completed product to Completed() channel
@@ -128,10 +141,11 @@ func (m *Manager) Complete(e Employee, p *Product) error {
 // completedCh returns the channel for CompletedProducts
 func (m *Manager) completedCh() chan CompletedProduct {
 	m.Lock()
+	defer m.Unlock()
+
 	if m.completed == nil {
 		m.completed = make(chan CompletedProduct)
 	}
-	m.Unlock()
 
 	return m.completed
 }
@@ -147,10 +161,11 @@ func (m *Manager) Completed() <-chan CompletedProduct {
 // for new products to be built.
 func (m *Manager) Jobs() chan *Product {
 	m.Lock()
+	defer m.Unlock()
+
 	if m.jobs == nil {
 		m.jobs = make(chan *Product)
 	}
-	m.Unlock()
 
 	return m.jobs
 }
@@ -158,34 +173,44 @@ func (m *Manager) Jobs() chan *Product {
 // Errors will return a channel that can be listened to
 // and can be used to receive errors from employees.
 func (m *Manager) Errors() chan error {
+	m.Lock()
+	defer m.Unlock()
+
 	if m.errs == nil {
 		m.errs = make(chan error)
 	}
+
 	return m.errs
 }
 
 // Stop will stop the manager and clean up all resources.
 func (m *Manager) Stop() {
-
-	m.Lock()
-	m.cancel()
+	m.RLock()
 	if m.stopped {
+		m.RUnlock()
 		return
 	}
 
-	m.stopped = true
+	m.RUnlock()
 
-	// close all channels
-	if m.jobs != nil {
-		close(m.jobs)
-	}
+	m.stopOnce.Do(func() {
+		m.Lock()
+		defer m.Unlock()
 
-	if m.errs != nil {
-		close(m.errs)
-	}
+		m.cancel()
+		m.stopped = true
 
-	if m.completed != nil {
-		close(m.completed)
-	}
-	m.Unlock()
+		// close all channels
+		if m.jobs != nil {
+			close(m.jobs)
+		}
+
+		if m.errs != nil {
+			close(m.errs)
+		}
+
+		if m.completed != nil {
+			close(m.completed)
+		}
+	})
 }

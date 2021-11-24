@@ -18,16 +18,22 @@ type Warehouse struct {
 
 // Start the warehouse
 func (w *Warehouse) Start(ctx context.Context) context.Context {
-	ctx, c := context.WithCancel(ctx)
+	ctx, cf := context.WithCancel(ctx)
 
-	w.cancel = c
+	w.Lock()
+	w.cancel = cf
+	w.Unlock()
 
 	return ctx
 }
 
 // Stop the warehouse
 func (w *Warehouse) Stop() {
-	w.cancel()
+	w.RLock()
+	if w.cancel != nil {
+		w.cancel()
+	}
+	w.RUnlock()
 }
 
 // Retrieve quantity of material from the warehouse
@@ -37,8 +43,8 @@ func (w *Warehouse) Retrieve(m Material, q int) (Material, error) {
 	// wait for the materials to become available
 	<-ctx.Done()
 
-	w.Lock()
 	// remove the materials from the warehouse
+	w.Lock()
 	w.materials[m] -= q
 	w.Unlock()
 
@@ -55,29 +61,31 @@ func (w *Warehouse) fill(m Material) context.Context {
 	go func() {
 		defer cancel()
 
-		w.Lock()
-		if w.cap <= 0 {
-			w.cap = 10
+		w.RLock()
+		ca := w.cap
+		mt := w.materials
+		w.RUnlock()
+
+		if ca <= 0 {
+			ca = 10
 		}
 
-		if w.materials == nil {
-			w.materials = Materials{}
-		}
-		w.Unlock()
-
-		cap := w.cap
-		mats := w.materials
-
 		w.Lock()
+		if mt == nil {
+			mt = Materials{}
+		}
+
 		// until the warehouse is full of
 		// the material create the material and
 		// fill the warehouse
-		q := mats[m]
-		for q < cap {
+		q := mt[m]
+		for q < ca {
 			time.Sleep(m.Duration())
-			mats[m]++
-			q = mats[m]
+			mt[m]++
+			q = mt[m]
 		}
+
+		w.materials = mt
 		w.Unlock()
 	}()
 

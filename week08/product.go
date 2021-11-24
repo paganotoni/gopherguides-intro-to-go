@@ -32,13 +32,19 @@ type Product struct {
 	sync.RWMutex
 }
 
-func (p Product) String() string {
+func (p *Product) String() string {
+	p.RLock()
+	defer p.RUnlock()
+
 	return p.Materials.String()
 }
 
 // BuiltBy returns the employee that built the product.
 // A return value of "0" means no employee has built the product yet.
-func (p Product) BuiltBy() Employee {
+func (p *Product) BuiltBy() Employee {
+	p.RLock()
+	defer p.RUnlock()
+
 	return p.builtBy
 }
 
@@ -57,10 +63,12 @@ func (p *Product) Build(e Employee, w *Warehouse) error {
 		return err
 	}
 
+	p.RLock()
 	// retrieve materials from warehouse
 	for k, v := range p.Materials {
 		w.Retrieve(k, v)
 	}
+	p.RUnlock()
 
 	// mark the product as built
 	p.Lock()
@@ -72,26 +80,31 @@ func (p *Product) Build(e Employee, w *Warehouse) error {
 
 // IsValid returns an error if the product is invalid.
 // A valid product has a quantity > 0.
-func (p Product) IsValid() error {
-	p.RLock()
+func (p *Product) IsValid() error {
+	p.Lock()
+
 	if len(p.Materials) == 0 {
+		p.Unlock()
 		return ErrInvalidMaterials(len(p.Materials))
 	}
-	p.RUnlock()
+
+	p.Unlock()
 
 	return nil
 }
 
 // IsBuilt returns an error if the product is not built,
 // or if the product is invalid.
-func (p Product) IsBuilt() error {
+func (p *Product) IsBuilt() error {
 	if err := p.IsValid(); err != nil {
 		return err
 	}
 
+	p.RLock()
 	if p.builtBy == 0 {
 		return ErrProductNotBuilt(fmt.Sprintf("product is not built: %v", p))
 	}
+	p.RUnlock()
 
 	return nil
 }
