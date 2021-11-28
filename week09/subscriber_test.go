@@ -3,7 +3,8 @@ package week09_test
 import (
 	"bytes"
 	"encoding/json"
-	"gopherguides-intro-to-go/week09"
+
+	"github.com/paganotoni/gopherguides-intro-to-go/week09"
 )
 
 type tSubscriber struct {

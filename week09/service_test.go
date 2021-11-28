@@ -3,10 +3,11 @@ package week09_test
 import (
 	"bytes"
 	"fmt"
-	"gopherguides-intro-to-go/week09"
 	"strings"
 	"sync"
 	"testing"
+
+	"github.com/paganotoni/gopherguides-intro-to-go/week09"
 )
 
 func TestServiceSubscribeMany(t *testing.T) {
