@@ -69,11 +69,11 @@ func (s *Service) Subscribe(sc Subscriber, categories []string) error {
 	return nil
 }
 
-func (s *Service) Unsubscribe(sc Subscriber) {
+func (s *Service) Unsubscribe(identifier string) {
 	s.RLock()
 	new := Subscriptions{}
 	for _, v := range s.subscriptions {
-		if v.Subscriber.Identifier() == sc.Identifier() {
+		if v.Subscriber.Identifier() == identifier {
 			continue
 		}
 
@@ -90,8 +90,8 @@ func (s *Service) Unsubscribe(sc Subscriber) {
 // Subscribers returns the list of subscribers, which is useful
 // for testing purposes and other operations
 func (s *Service) Subscribers() []Subscriber {
-	s.RLock()
-	defer s.RUnlock()
+	s.Lock()
+	defer s.Unlock()
 
 	return s.subscriptions.Subscribers()
 }

@@ -59,46 +59,32 @@ func TestServiceSubscribeRepeated(t *testing.T) {
 
 func TestServiceUnsubscribe(t *testing.T) {
 	service := &week09.Service{}
-	wg := new(sync.WaitGroup)
 
 	for i := 0; i < 10; i++ {
-		wg.Add(1)
-
 		sub := tSubscriber{
 			id:  fmt.Sprintf("%d", i),
 			out: bytes.NewBufferString(""),
 		}
 
-		go func(subb week09.Subscriber) {
-			service.Subscribe(subb, []string{"sports"})
-
-			wg.Done()
-		}(sub)
-
-		wg.Add(1)
-		go func(subb week09.Subscriber) {
-			service.Unsubscribe(subb)
-
-			wg.Done()
-		}(sub)
+		service.Subscribe(sub, []string{"sports"})
 	}
 
+	if len(service.Subscribers()) != 10 {
+		t.Fatalf("Expected 0 subscriber, got %d", len(service.Subscribers()))
+	}
+
+	wg := new(sync.WaitGroup)
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func(id int) {
+			service.Unsubscribe(fmt.Sprintf("%d", id))
+			wg.Done()
+		}(i)
+	}
 	wg.Wait()
 
 	if len(service.Subscribers()) != 0 {
 		t.Fatalf("Expected 0 subscriber, got %d", len(service.Subscribers()))
-	}
-
-	sub := tSubscriber{
-		id:  "120",
-		out: bytes.NewBufferString(""),
-	}
-
-	service.Subscribe(sub, []string{"sports"})
-	service.Unsubscribe(sub)
-
-	if len(service.Subscribers()) == 1 {
-		t.Fatalf("should not have subscribers")
 	}
 }
 
