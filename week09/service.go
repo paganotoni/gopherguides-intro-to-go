@@ -70,7 +70,7 @@ func (s *Service) Subscribe(sc Subscriber, categories []string) error {
 }
 
 func (s *Service) Unsubscribe(identifier string) {
-	s.RLock()
+	s.Lock()
 	new := Subscriptions{}
 	for _, v := range s.subscriptions {
 		if v.Subscriber.Identifier() == identifier {
@@ -80,9 +80,6 @@ func (s *Service) Unsubscribe(identifier string) {
 		new = append(new, v)
 	}
 
-	s.RUnlock()
-
-	s.Lock()
 	s.subscriptions = new
 	s.Unlock()
 }

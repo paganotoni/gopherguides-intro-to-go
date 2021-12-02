@@ -71,7 +71,7 @@ func TestServiceUnsubscribe(t *testing.T) {
 	}
 
 	if len(service.Subscribers()) != 10 {
-		t.Fatalf("Expected 0 subscriber, got %d", len(service.Subscribers()))
+		t.Fatalf("Expected 10 subscriber, got %d", len(service.Subscribers()))
 	}
 
 	wg := new(sync.WaitGroup)
