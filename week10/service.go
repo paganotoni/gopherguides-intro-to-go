@@ -4,9 +4,9 @@ import (
 	"sync"
 )
 
-// Service in charge of the orchestration for the flow of
+// service in charge of the orchestration for the flow of
 // news stories from sources into subscribers.
-type Service struct {
+type service struct {
 	// News in the historical archive that the
 	// Service keeps track of. these are loaded from the backup file
 	// when teh Service is started.
@@ -20,16 +20,22 @@ type Service struct {
 	// sources when the service is stopped.
 	sources []Source
 
+	// sourceCh is used to listen for sources posting through
+	// this channel.
+	sourceCh chan News
+
 	sync.RWMutex
 }
 
-func (s *Service) Start() {
+func (s *service) Start() error {
 	// The news service should be able to be stopped and started multiple times.
 	// The news service should load any saved state from the backup file when it is started.
 	// The news service should periodically save the state of the news service to a backup file, in JSON format.
+
+	return nil
 }
 
-func (s *Service) Stop() {
+func (s *service) Stop() {
 	// The news service should be able to be stopped by the end user.
 	// The news service should be able to be stopped by the news service itself.
 	// The news service should not be able to be stopped by the news sources.
@@ -40,7 +46,11 @@ func (s *Service) Stop() {
 	// The news service should stop all sources and subscribers when it is stopped.
 }
 
-func (s *Service) Receive(n News) {
+func (s *service) NewsCh() chan News {
+	return s.sourceCh
+}
+
+func (s *service) Receive(n News) {
 	// Receive the news implies
 	// 1. Add the news to the historical archive
 
@@ -55,7 +65,7 @@ func (s *Service) Receive(n News) {
 // register a subscription within the service with both the subscriber
 // and the categories. These will be taken into account when receiving
 // news.
-func (s *Service) Subscribe(sc Subscriber, categories []string) error {
+func (s *service) Subscribe(sc Subscriber, categories []string) error {
 	s.Lock()
 	defer s.Unlock()
 
@@ -73,11 +83,11 @@ func (s *Service) Subscribe(sc Subscriber, categories []string) error {
 
 // Unsubscribe removes a subscriber from the service by
 // the Identifier of the subscriber.
-func (s *Service) Unsubscribe(identifier string) {
+func (s *service) Unsubscribe(sub Subscriber) {
 	s.Lock()
 	new := Subscriptions{}
 	for _, v := range s.subscriptions {
-		if v.Subscriber.Identifier() == identifier {
+		if v.Subscriber.Identifier() == sub.Identifier() {
 			continue
 		}
 
@@ -90,24 +100,30 @@ func (s *Service) Unsubscribe(identifier string) {
 
 // Subscribers returns the list of subscribers, which is useful
 // for testing purposes and other operations
-func (s *Service) Subscribers() []Subscriber {
+func (s *service) Subscribers() []Subscriber {
 	s.Lock()
 	defer s.Unlock()
 
 	return s.subscriptions.Subscribers()
 }
 
-func (s *Service) backup() {
+func (s *service) backup() {
 	// Save the state of the news service to the backup file
 }
 
-func (s *Service) FindBy(id ...int) []News {
+func (s *service) FindBy(id ...int) []News {
 	// The news service should provide access to historical news stories by ID number, or range of ID numbers.
 	return []News{}
 }
 
-func (s *Service) Register(source Source) {
+func (s *service) AddSource(source Source) {
 	// Add to the sources registry so it can be stopped when the service is stopped.
 	// The news service should be able to receive news stories from sources.
 	// and publish them to subscribers by checking the listensTo method of the subscribers.
+}
+
+func (s *service) Clean() {
+	s.subscriptions = Subscriptions{}
+	s.sources = []Source{}
+	s.news = []News{}
 }

@@ -8,6 +8,9 @@ package week10
 // Sources should be free to deliver stories as frequently, or as infrequently, as they wish.
 
 type Source interface {
-	NewsChannel() chan<- News
-	Done()
+	//
+	PublishTo(chan News)
+
+	//
+	Stop()
 }

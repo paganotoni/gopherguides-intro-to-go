@@ -18,27 +18,20 @@ The starting point of the library is the Service, to start the library you shoul
     import "github.com/paganotoni/gopherguides-intro-to-go/week09"
 
     func main() {
-        service := week09.Service{}
-
-        subscriber = yourSubscriber{}
-        // This would add the subscriber to the service
-        // so the service notifies it.
-        service.Subscribe(subscriber, []string{"sports", "politics"})
-
-        // This would the mockSource to the service
-        // so it pushes news to the Service.
-        service.AddSource(week09.MockSource)
-
-        // This would the FileSource to the service
-        // so it listens to changes on that given folder
-        // and pushes news to the Service.
-        service.AddSource(week09.FileSource("/path/to/file"))
-
-
-        // This starts the service and waits for cancellation
-        err := service.Start()
+        // Subscribing a subscriber to passed categories
+        week10.Subscribe(yourSubscriber{}, []string{"sports", "politics"})
+        
+        // Adding sources to the service.
+        week10.AddSource(week10.MockSource{})
+        week10.AddSource(week10.FileSource("/path/to/file"))
+        
+        // Starting the service
+        err := week10.Start()
         if err != nil {
             panic(err)
         }
+
+        time.Sleep(time.Second * 10)
+        week10.Stop()
     }
 ```
