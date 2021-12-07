@@ -29,7 +29,12 @@ type service struct {
 }
 
 func (s *service) Start(ctx context.Context) error {
+
 	// TODO: Load persisted state
+	// The news service should load any saved state from the backup file when it is started.
+	// The news service should periodically save the state of the news service to a backup file, in JSON format.
+
+	// The news service should be able to be stopped and started multiple times.
 	go func() {
 		// Start listening for sources posting news.
 		for {
@@ -39,17 +44,13 @@ func (s *service) Start(ctx context.Context) error {
 			case n := <-s.sourceCh:
 				// Receive the news implies
 				// TODO: Add the news to the historical archive
-				sn := s.subscriptions.SubscribersFor(n.Categories...)
+				sn := s.SubscribersFor(n.Categories...)
 				for _, v := range sn {
 					go v.Receive(n)
 				}
 			}
 		}
 	}()
-
-	// The news service should be able to be stopped and started multiple times.
-	// The news service should load any saved state from the backup file when it is started.
-	// The news service should periodically save the state of the news service to a backup file, in JSON format.
 
 	return nil
 }
@@ -69,10 +70,11 @@ func (s *service) NewsCh() chan News {
 	s.Lock()
 	defer s.Unlock()
 
-	if s.sourceCh == nil {
-		s.sourceCh = make(chan News)
+	if s.sourceCh != nil {
+		return s.sourceCh
 	}
 
+	s.sourceCh = make(chan News)
 	return s.sourceCh
 }
 
@@ -136,6 +138,13 @@ func (s *service) Clean() {
 	s.subscriptions = Subscriptions{}
 	s.sources = []Source{}
 	s.news = []News{}
+}
+
+func (s *service) SubscribersFor(categories ...string) []Subscriber {
+	s.RLock()
+	defer s.RUnlock()
+
+	return s.subscriptions.SubscribersFor(categories...)
 }
 
 func (s *service) backup() {

@@ -16,9 +16,9 @@ func TestMockSource(t *testing.T) {
 		out: bytes.NewBuffer(nil),
 	}
 
-	week10.Subscribe(sub, []string{"mock"})
+	week10.Subscribe(sub, "sports")
 
-	ms := week10.NewMockSource(time.Millisecond * 10)
+	ms := week10.NewMockSource(time.Millisecond*10, "sports")
 	week10.AddSource(ms)
 
 	week10.Start(context.Background())
@@ -26,7 +26,7 @@ func TestMockSource(t *testing.T) {
 	time.Sleep(time.Millisecond * 105)
 	week10.Stop()
 
-	if len(sub.news) != 10 {
+	if len(sub.News()) != 10 {
 		t.Errorf("Expected 10 news, got %d", len(sub.news))
 	}
 }

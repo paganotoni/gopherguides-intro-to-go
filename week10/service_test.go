@@ -21,7 +21,7 @@ func TestServiceSubscribeMany(t *testing.T) {
 				out: bytes.NewBufferString(""),
 			}
 
-			week10.Subscribe(&sub, []string{"sports"})
+			week10.Subscribe(&sub, "sports")
 			wgx.Done()
 		}(wg, i)
 	}
@@ -47,12 +47,12 @@ func TestServiceSubscribeRepeated(t *testing.T) {
 		out: bytes.NewBufferString(""),
 	}
 
-	err := week10.Subscribe(&sub, []string{"sports"})
+	err := week10.Subscribe(&sub, "sports")
 	if err != nil {
 		t.Fatalf("err should be nil, got %v", err)
 	}
 
-	err = week10.Subscribe(&sub2, []string{"sports"})
+	err = week10.Subscribe(&sub2, "sports")
 	if err == nil {
 		t.Fatal("err should not nil")
 	}
@@ -67,7 +67,7 @@ func TestServiceUnsubscribe(t *testing.T) {
 			out: bytes.NewBufferString(""),
 		}
 
-		week10.Subscribe(sub, []string{"sports"})
+		week10.Subscribe(sub, "sports")
 	}
 
 	if subs := len(week10.Subscribers()); subs != 10 {

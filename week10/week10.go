@@ -9,7 +9,7 @@ var (
 )
 
 // Subscribe a subscriber to the passed categories
-func Subscribe(sub Subscriber, categories []string) error {
+func Subscribe(sub Subscriber, categories ...string) error {
 	return sharedService.Subscribe(sub, categories)
 }
 
