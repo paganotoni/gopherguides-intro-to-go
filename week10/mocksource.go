@@ -19,7 +19,7 @@ type mockSource struct {
 	sync.RWMutex
 }
 
-func (ms mockSource) Stop() {
+func (ms *mockSource) Stop() {
 	ms.Lock()
 	defer ms.Unlock()
 
@@ -28,23 +28,26 @@ func (ms mockSource) Stop() {
 
 // PublishTo starts a goroutine that sends mock news at the configured
 // interval through the given news channel.
-func (ms mockSource) PublishTo(ch chan News) {
+func (ms *mockSource) PublishTo(ch chan News) {
 	go func() {
+		t := time.Tick(ms.interval)
 		for {
-			ms.RLock()
-			if ms.stopped {
+			select {
+			case <-t:
+				ms.RLock()
+				if ms.stopped {
+					ms.RUnlock()
+					break
+				}
 				ms.RUnlock()
-				break
-			}
-			ms.RUnlock()
 
-			ch <- News{
-				Title:      "mock news",
-				Content:    "mock news body",
-				Categories: []string{"mock"},
+				ch <- News{
+					ID:         int(time.Now().Unix()),
+					Title:      "mock news",
+					Content:    "mock news body",
+					Categories: []string{"mock"},
+				}
 			}
-
-			time.Sleep(ms.interval)
 		}
 	}()
 }

@@ -1,6 +1,7 @@
 package week10
 
 import (
+	"context"
 	"sync"
 )
 
@@ -27,7 +28,25 @@ type service struct {
 	sync.RWMutex
 }
 
-func (s *service) Start() error {
+func (s *service) Start(ctx context.Context) error {
+	// TODO: Load persisted state
+	go func() {
+		// Start listening for sources posting news.
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case n := <-s.sourceCh:
+				// Receive the news implies
+				// TODO: Add the news to the historical archive
+				sn := s.subscriptions.SubscribersFor(n.Categories...)
+				for _, v := range sn {
+					go v.Receive(n)
+				}
+			}
+		}
+	}()
+
 	// The news service should be able to be stopped and started multiple times.
 	// The news service should load any saved state from the backup file when it is started.
 	// The news service should periodically save the state of the news service to a backup file, in JSON format.
@@ -47,18 +66,14 @@ func (s *service) Stop() {
 }
 
 func (s *service) NewsCh() chan News {
-	return s.sourceCh
-}
+	s.Lock()
+	defer s.Unlock()
 
-func (s *service) Receive(n News) {
-	// Receive the news implies
-	// 1. Add the news to the historical archive
-
-	// 2. Notify subscribers that the news listening on news categories.
-	sn := s.subscriptions.SubscribersFor(n.Categories...)
-	for _, v := range sn {
-		v.Receive(n)
+	if s.sourceCh == nil {
+		s.sourceCh = make(chan News)
 	}
+
+	return s.sourceCh
 }
 
 // Subscribe a subscriber on the passed categories, this method
@@ -107,6 +122,22 @@ func (s *service) Subscribers() []Subscriber {
 	return s.subscriptions.Subscribers()
 }
 
+func (s *service) AddSource(source Source) {
+	s.RLock()
+	defer s.RUnlock()
+
+	s.sources = append(s.sources, source)
+}
+
+func (s *service) Clean() {
+	s.Lock()
+	defer s.Unlock()
+
+	s.subscriptions = Subscriptions{}
+	s.sources = []Source{}
+	s.news = []News{}
+}
+
 func (s *service) backup() {
 	// Save the state of the news service to the backup file
 }
@@ -114,16 +145,4 @@ func (s *service) backup() {
 func (s *service) FindBy(id ...int) []News {
 	// The news service should provide access to historical news stories by ID number, or range of ID numbers.
 	return []News{}
-}
-
-func (s *service) AddSource(source Source) {
-	// Add to the sources registry so it can be stopped when the service is stopped.
-	// The news service should be able to receive news stories from sources.
-	// and publish them to subscribers by checking the listensTo method of the subscribers.
-}
-
-func (s *service) Clean() {
-	s.subscriptions = Subscriptions{}
-	s.sources = []Source{}
-	s.news = []News{}
 }

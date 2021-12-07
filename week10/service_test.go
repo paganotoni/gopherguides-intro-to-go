@@ -62,7 +62,7 @@ func TestServiceUnsubscribe(t *testing.T) {
 	t.Cleanup(week10.Clean)
 
 	for i := 0; i < 10; i++ {
-		sub := tSubscriber{
+		sub := &tSubscriber{
 			id:  fmt.Sprintf("%d", i),
 			out: bytes.NewBufferString(""),
 		}
@@ -78,7 +78,7 @@ func TestServiceUnsubscribe(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		wg.Add(1)
 		go func(id int) {
-			week10.Unsubscribe(tSubscriber{id: fmt.Sprintf("%d", id)})
+			week10.Unsubscribe(&tSubscriber{id: fmt.Sprintf("%d", id)})
 			wg.Done()
 		}(i)
 	}

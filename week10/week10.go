@@ -1,5 +1,7 @@
 package week10
 
+import "context"
+
 var (
 	// sharedService will be the only instance of the service
 	// that this package will wrap.
@@ -16,8 +18,8 @@ func Unsubscribe(sub Subscriber) {
 	sharedService.Unsubscribe(sub)
 }
 
-func Start() error {
-	return sharedService.Start()
+func Start(ctx context.Context) error {
+	return sharedService.Start(ctx)
 }
 
 func Stop() {

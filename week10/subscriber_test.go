@@ -8,19 +8,21 @@ import (
 )
 
 type tSubscriber struct {
-	id  string
-	out *bytes.Buffer
+	id   string
+	out  *bytes.Buffer
+	news []week10.News
 }
 
-func (ts tSubscriber) Identifier() string {
+func (ts *tSubscriber) Identifier() string {
 	return ts.id
 }
 
-func (ts tSubscriber) Receive(news week10.News) {
+func (ts *tSubscriber) Receive(news week10.News) {
 	bb, err := json.Marshal(news)
 	if err != nil {
 		return
 	}
 
 	ts.out.Write(bb)
+	ts.news = append(ts.news, news)
 }
