@@ -29,7 +29,6 @@ type service struct {
 }
 
 func (s *service) Start(ctx context.Context) error {
-
 	// TODO: Load persisted state
 	// The news service should load any saved state from the backup file when it is started.
 	// The news service should periodically save the state of the news service to a backup file, in JSON format.
